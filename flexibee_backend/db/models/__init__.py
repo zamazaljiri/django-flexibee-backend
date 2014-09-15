@@ -102,10 +102,14 @@ class Relation(FlexibeeItem):
     invoice = None
     remain = None
 
+    def _get_related_obj(self, data, field_name):
+        related_model = get_model_by_db_table(data['%s@ref' % field_name].split('/')[-2])
+        return lazy_obj_loader(related_model, {'pk': data['%s@ref' % field_name].split('/')[-1][:-5]},
+                               self.instance.flexibee_company.flexibee_db_name)
+
     def _decode(self, data):
-        related_model = get_model_by_db_table(data['%s@ref' % 'a'].split('/')[-2])
-        self.invoice = lazy_obj_loader(related_model, {'pk': data['%s@ref' % 'a'].split('/')[-1][:-5]},
-                                       self.instance.flexibee_company.flexibee_db_name)
+        self.invoice = self._get_related_obj(data, 'a')
+        self.payment = self._get_related_obj(data, 'b')
         self.type = data['typVazbyK']
         self.sum = decimal.Decimal(data['castka'])
 
