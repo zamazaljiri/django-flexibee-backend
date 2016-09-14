@@ -3,6 +3,7 @@ import requests
 import json
 import logging
 import decimal
+import time
 
 from django.db.utils import DatabaseError
 from django.utils.encoding import force_text
@@ -27,6 +28,7 @@ class BaseConnector(object):
 
     JSON_HEADER = {'Accept': 'application/json'}
     logger = logging.getLogger('flexibee-backend')
+    logger_response_time = logging.getLogger('flexibee-backend-response-time')
 
     def __init__(self, username, password, hostname):
         self.username = username
@@ -47,26 +49,38 @@ class BaseConnector(object):
         except ValueError:
             raise FlexibeeResponseError(url, r, 'Cannot parse response content')
 
+    def _log_response_time(self, response, duration):
+        self.logger_response_time.info('\t'.join([response.request.method, str(response.elapsed.total_seconds()),
+                                                  str(duration), str(len(response.content)), response.request.url]))
+
     def http_get(self, url):
         self.logger.info('Sending GET to %s' % url)
+        start = time.time()
         r = requests.get(url, auth=(self.username, self.password))
+        self._log_response_time(r, time.time() - start)
         self.logger.info('Receiving response %s' % r.status_code)
         return r
 
     def http_put(self, url, data=None, headers=None, serialize=True):
         self.logger.info('Sending PUT to %s' % url)
         if data is None:
+            start = time.time()
             r = requests.put(url, auth=(self.username, self.password))
+            self._log_response_time(r, time.time() - start)
         else:
             if serialize:
                 data = self._serialize(data)
+            start = time.time()
             r = requests.put(url, data=data, headers=headers, auth=(self.username, self.password))
+            self._log_response_time(r, time.time() - start)
         self.logger.info('Receiving response %s' % r.status_code)
         return r
 
     def http_delete(self, url):
         self.logger.info('Sending DELETE to %s' % url)
+        start = time.time()
         r = requests.delete(url, auth=(self.username, self.password))
+        self._log_response_time(r, time.time() - start)
         self.logger.info('Receiving response %s' % r.status_code)
         return r
 
