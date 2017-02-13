@@ -183,7 +183,7 @@ class ModelConnector(CachedConnector):
             extra = '/(%s)' % urlquote(filter_string, safe='')
         return extra
 
-    def _get_query_string(self, fields, relations, ordering, offset, base):
+    def _get_query_string(self, fields, relations, ordering, offset, base, accounting_period):
         query_string_list = [
             ('detail', 'custom:%s' % ','.join(fields))
         ]
@@ -197,6 +197,9 @@ class ModelConnector(CachedConnector):
         query_string_list.append(('start', offset))
         query_string_list.append(('limit', base))
         query_string_list.append(('add-row-count', 'true'))
+
+        if accounting_period:
+            query_string_list.append(('idUcetniObdobi', accounting_period))
 
         return '&'.join(['%s=%s' % (key, val) for key, val in query_string_list])
 
@@ -213,7 +216,15 @@ class ModelConnector(CachedConnector):
 
         return FlexibeeResponseError(url, response, message)
 
-    def read(self, table_name, filters, fields, relations, ordering, offset, base, store_via_table_name):
+    def _get_accounting_period_from_filters(self, filters):
+        for filter in filters:
+            if (isinstance(filter, ElementaryFilter) and filter.op == '=' and filter.field == 'ucetniObdobi'
+                and not filter.negated):
+                return filter.value
+        return None
+
+    def read(self, table_name, filters, fields, relations, ordering, offset, base, store_via_table_name,
+             use_accounting_period):
         self._check_settings(table_name)
 
         data = self._get_from_cache(table_name, filters, fields, relations, ordering, offset, base,
@@ -221,9 +232,10 @@ class ModelConnector(CachedConnector):
         if data is not None:
             return data
 
+        accounting_period = self._get_accounting_period_from_filters(filters) if use_accounting_period else None
         url = self._generate_url(
             self._get_extra_filter(filters), table_name,
-            self._get_query_string(fields, relations, ordering, offset, base), 'json'
+            self._get_query_string(fields, relations, ordering, offset, base, accounting_period), 'json'
         )
         r = self.http_get(url)
 
@@ -235,7 +247,7 @@ class ModelConnector(CachedConnector):
         else:
             raise self._get_exception(r, url, 'Model connector read method error')
 
-    def count(self, table_name, filters, ordering, store_via_table_name):
+    def count(self, table_name, filters, ordering, store_via_table_name, use_accounting_period):
         self._check_settings(table_name)
 
         fields = ['id']
@@ -248,9 +260,10 @@ class ModelConnector(CachedConnector):
         if data is not None:
             return data
 
+        accounting_period = self._get_accounting_period_from_filters(filters) if use_accounting_period else None
         url = self._generate_url(
             self._get_extra_filter(filters), table_name,
-            self._get_query_string(fields, relations, ordering, offset, base), 'json'
+            self._get_query_string(fields, relations, ordering, offset, base, accounting_period), 'json'
         )
         r = self.http_get(url)
 
@@ -451,7 +464,7 @@ class RelationConnector(CachedConnector):
 class RestQuery(object):
 
     def __init__(self, connector, table_name, fields=None, relations=None, via_table_name=None, via_relation_name=None,
-                 via_fk_name=None):
+                 via_fk_name=None, use_accounting_period=False):
         self.table_name = table_name
         self.connector = connector
         self.fields = fields or []
@@ -461,6 +474,7 @@ class RestQuery(object):
         self.via_table_name = via_table_name
         self.via_relation_name = via_relation_name
         self.via_fk_name = via_fk_name
+        self.use_accounting_period = use_accounting_period
 
     def is_request_for_one_object(self, filters):
         return (len(filters) == 1 and isinstance(filters[0], ElementaryFilter) and
@@ -476,11 +490,12 @@ class RestQuery(object):
         extra_fields = extra_fields or []
         return self.connector.read(
             self.table_name, self.filters, list(self.fields) + extra_fields, self.relations, self.order_fields, offset,
-            base, self.via_table_name
+            base, self.via_table_name, self.use_accounting_period
         )
 
     def count(self):
-        return self.connector.count(self.table_name, self.filters, self.order_fields, self.via_table_name)
+        return self.connector.count(self.table_name, self.filters, self.order_fields, self.via_table_name,
+                                    self.use_accounting_period)
 
     def add_ordering(self, field_name, is_asc):
         self.order_fields.append('%s@%s' % (field_name, is_asc and 'A' or 'D'))

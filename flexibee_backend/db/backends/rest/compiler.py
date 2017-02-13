@@ -54,14 +54,14 @@ class BackendQuery(NonrelQuery):
 
         store_via_field = self._get_store_via()
 
-        query_kwargs = {}
+        query_kwargs = {'use_accounting_period': self.query.model._flexibee_meta.use_accounting_period}
 
         if store_via_field:
-            query_kwargs = {
+            query_kwargs.update({
                 'via_table_name': store_via_field.rel.to._meta.db_table,
                 'via_relation_name': store_via_field.db_relation_name,
                 'via_fk_name': store_via_field.db_column or store_via_field.get_attname()
-            }
+            })
 
         self.db_query = RestQuery(self.connection.connector, self.query.model._meta.db_table,
                                   self._get_db_field_names(), **query_kwargs)

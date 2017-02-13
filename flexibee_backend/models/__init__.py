@@ -434,6 +434,7 @@ class FlexibeeModel(models.Model):
         readonly_fields = []
         readonly = False
         view = False
+        use_accounting_period = False
 
     class RestMeta:
         default_general_fields = ('id',)

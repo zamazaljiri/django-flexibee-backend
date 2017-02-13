@@ -13,8 +13,7 @@ class Ssl3HttpAdapter(HTTPAdapter):
     def init_poolmanager(self, connections, maxsize, block=False):
         self.poolmanager = PoolManager(num_pools=connections,
                                        maxsize=maxsize,
-                                       block=block,
-                                       ssl_version=ssl.PROTOCOL_SSLv3)
+                                       block=block)  # ssl_version=ssl.PROTOCOL_SSLv3 - temoporary removed
 
 
 sslrequests = requests.Session()
