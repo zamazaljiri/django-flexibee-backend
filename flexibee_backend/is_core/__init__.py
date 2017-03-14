@@ -32,7 +32,7 @@ from rest.data_processor import *
 class FlexibeeIsCore(UIRestModelISCore):
     abstract = True
     default_ui_pattern_class = FlexibeePattern
-    rest_resource_pattern_class = FlexibeeRestPattern
+    default_rest_resource_pattern_class = FlexibeeRestPattern
 
     def get_view_classes(self):
         view_classes = super(FlexibeeIsCore, self).get_view_classes()
@@ -98,7 +98,7 @@ class FlexibeeIsCore(UIRestModelISCore):
 class ItemIsCore(RestModelISCore):
     abstract = True
 
-    rest_resource_pattern_class = FlexibeeRestPattern
+    default_rest_resource_pattern_class = FlexibeeRestPattern
 
     def init_request(self, request):
         get_connection(config.FLEXIBEE_BACKEND_NAME).set_db_name(self.get_company(request).flexibee_db_name)
@@ -126,7 +126,7 @@ class ItemIsCore(RestModelISCore):
         )
 
     def get_resource_patterns(self):
-        return DoubleRestPattern(self.rest_resource_class, self.rest_resource_pattern_class, self).patterns
+        return DoubleRestPattern(self.rest_resource_class, self.default_rest_resource_pattern_class, self).patterns
 
 
 class AttachmentsIsCore(ItemIsCore):
