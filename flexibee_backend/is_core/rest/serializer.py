@@ -1,6 +1,6 @@
 from django.utils.datastructures import SortedDict
 
-from piston.serializer import Serializer, register, ModelSerializer
+from pyston.serializer import Serializer, register, ModelSerializer
 
 from flexibee_backend.models.fields import ItemsManager
 from flexibee_backend.models import FlexibeeItem

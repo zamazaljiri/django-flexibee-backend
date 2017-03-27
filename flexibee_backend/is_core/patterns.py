@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 
-from is_core.patterns import RestPattern, UIPattern
+from is_core.patterns import RESTPattern, UIPattern
 
 
 class FlexibeePattern(object):
@@ -12,7 +12,7 @@ class FlexibeePattern(object):
         return kwargs
 
 
-class FlexibeeRestPattern(FlexibeePattern, RestPattern):
+class FlexibeeRESTPattern(FlexibeePattern, RESTPattern):
     pass
 
 

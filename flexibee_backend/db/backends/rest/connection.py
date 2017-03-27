@@ -461,7 +461,7 @@ class RelationConnector(CachedConnector):
         self._clear_table_cache(table_name)
 
 
-class RestQuery(object):
+class RESTQuery(object):
 
     def __init__(self, connector, table_name, fields=None, relations=None, via_table_name=None, via_relation_name=None,
                  via_fk_name=None, use_accounting_period=False):
@@ -531,7 +531,7 @@ class RestQuery(object):
             return self._get_id_from_result(self.connector.write(self.table_name, [data]))
 
     def _store_via(self, data):
-        store_view_db_query = RestQuery(self.connector, self.via_table_name, ['id'],
+        store_view_db_query = RESTQuery(self.connector, self.via_table_name, ['id'],
                                         [self.via_relation_name])
         store_view_db_query.add_filter(ElementaryFilter('id', '=', data.get(self.via_fk_name), False))
 
@@ -544,7 +544,7 @@ class RestQuery(object):
         if 'id' in data:
             return data['id']
         else:
-            query = RestQuery(self.connector, self.table_name, ['id'])
+            query = RESTQuery(self.connector, self.table_name, ['id'])
             query.add_filter(ElementaryFilter(self.via_fk_name, '=',
                                               data.get(self.via_fk_name), False))
 
@@ -564,7 +564,7 @@ class RestQuery(object):
     def _delete_via(self):
         all_deleted_pks = []
         for parent_pk, deleted_pks in self._get_deleted_objects_via_obj().items():
-            store_view_db_query = RestQuery(
+            store_view_db_query = RESTQuery(
                 self.connector, self.via_table_name, ['id'], [self.via_relation_name]
             )
             store_view_db_query.add_filter(ElementaryFilter('id', '=', parent_pk, False))

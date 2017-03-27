@@ -1,6 +1,6 @@
 from django.db.transaction import get_connection
 
-from piston.cache import DefaultRestCache
+from pyston.cache import DefaultRESTCache
 
 from flexibee_backend import config
 from flexibee_backend.db.backends.rest.exceptions import ChangesNotActivatedFlexibeeResponseError
@@ -13,7 +13,7 @@ class FlexibeeCachedResponseWrapper(object):
         self.version = version
 
 
-class FlexibeeDefaultRestCache(DefaultRestCache):
+class FlexibeeDefaultRESTCache(DefaultRESTCache):
 
     def _cache_response(self, request, response):
         self._get_cache().set(self._get_key(request), FlexibeeCachedResponseWrapper(response,

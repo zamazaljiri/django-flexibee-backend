@@ -15,7 +15,7 @@ from djangotoolbox.db.basecompiler import (NonrelQuery, NonrelCompiler,
 
 from dateutil.parser import parse
 
-from .connection import RestQuery
+from .connection import RESTQuery
 
 from flexibee_backend.models import StoreViaForeignKey, CompanyForeignKey, RemoteFileField
 from flexibee_backend.models.fields import ItemsField
@@ -63,7 +63,7 @@ class BackendQuery(NonrelQuery):
                 'via_fk_name': store_via_field.db_column or store_via_field.get_attname()
             })
 
-        self.db_query = RestQuery(self.connection.connector, self.query.model._meta.db_table,
+        self.db_query = RESTQuery(self.connection.connector, self.query.model._meta.db_table,
                                   self._get_db_field_names(), **query_kwargs)
         self.internal_query = InternalModelQuery(self.model, fields, self.db_query)
 

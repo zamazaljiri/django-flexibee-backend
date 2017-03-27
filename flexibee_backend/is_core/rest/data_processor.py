@@ -1,8 +1,8 @@
 from django.http.response import Http404
 
-from piston.data_processor import MultipleDataProcessorMixin, ResourceProcessorMixin, DataProcessor, data_postprocessors
-from piston.resource import BaseModelResource
-from piston.exception import DataInvalidException, RestException
+from pyston.data_processor import MultipleDataProcessorMixin, ResourceProcessorMixin, DataProcessor, data_postprocessors
+from pyston.resource import BaseModelResource
+from pyston.exception import DataInvalidException, RESTException
 
 from is_core.utils.models import get_model_field_by_name
 
@@ -38,7 +38,7 @@ class ReverseMultipleDataPreprocessor(MultipleDataProcessorMixin, ResourceProces
             try:
                 resource._delete(self._flat_object_to_pk(resource.pk_field_name, obj_data), self.via,
                                  parent_obj=self.inst)
-            except (DataInvalidException, RestException) as ex:
+            except (DataInvalidException, RESTException) as ex:
                 raise DataInvalidException(ex.errors)
             except Http404:
                 raise DataInvalidException({'error': _('Object does not exist')})

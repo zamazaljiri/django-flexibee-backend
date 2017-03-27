@@ -1,16 +1,16 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import Http404
 
-from piston.resource import BaseObjectResource
+from pyston.resource import BaseObjectResource
 
-from is_core.rest.resource import RestResource
+from is_core.rest.resource import RESTResource
 
 from flexibee_backend.models import Attachment, FlexibeeItem
 from flexibee_backend.is_core.forms import FlexibeeAttachmentForm
 from flexibee_backend.models import Relation
 
 
-class FlexibeeItemResource(RestResource, BaseObjectResource):
+class FlexibeeItemResource(RESTResource, BaseObjectResource):
     field_name = None
     form_class = None
     register = True

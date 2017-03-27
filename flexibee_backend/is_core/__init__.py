@@ -4,11 +4,11 @@ from django.core.urlresolvers import reverse
 from django.db.utils import DatabaseError
 from django.http.response import Http404
 
-from is_core.main import UIRestModelISCore, RestModelISCore
+from is_core.main import UIRESTModelISCore, RESTModelISCore
 from is_core.generic_views.inlines.inline_form_views import TabularInlineFormView
 from is_core.generic_views.table_views import TableView
-from is_core.rest.resource import RestModelResource
-from is_core.patterns import RestPattern, DoubleRestPattern
+from is_core.rest.resource import RESTModelResource
+from is_core.patterns import RESTPattern, DoubleRESTPattern
 from is_core.generic_views.form_views import AddModelFormView, EditModelFormView
 from is_core.exceptions import PersistenceException
 from is_core.actions import WebAction
@@ -17,7 +17,7 @@ from is_core.rest.factory import modelrest_factory
 
 from chamber.shortcuts import get_object_or_404
 
-from flexibee_backend.is_core.patterns import (FlexibeeRestPattern, FlexibeeUIPattern, FlexibeePattern,
+from flexibee_backend.is_core.patterns import (FlexibeeRESTPattern, FlexibeeUIPattern, FlexibeePattern,
                                                AttachmentsFlexibeeUIPattern)
 from flexibee_backend import config
 from flexibee_backend.db.backends.rest.exceptions import FlexibeeResponseError
@@ -29,10 +29,10 @@ from rest.serializer import *
 from rest.data_processor import *
 
 
-class FlexibeeIsCore(UIRestModelISCore):
+class FlexibeeIsCore(UIRESTModelISCore):
     abstract = True
     default_ui_pattern_class = FlexibeePattern
-    default_rest_resource_pattern_class = FlexibeeRestPattern
+    default_rest_resource_pattern_class = FlexibeeRESTPattern
 
     def get_view_classes(self):
         view_classes = super(FlexibeeIsCore, self).get_view_classes()
@@ -95,10 +95,10 @@ class FlexibeeIsCore(UIRestModelISCore):
         return self.has_read_permission(request, obj)
 
 
-class ItemIsCore(RestModelISCore):
+class ItemIsCore(RESTModelISCore):
     abstract = True
 
-    default_rest_resource_pattern_class = FlexibeeRestPattern
+    default_rest_resource_pattern_class = FlexibeeRESTPattern
 
     def init_request(self, request):
         get_connection(config.FLEXIBEE_BACKEND_NAME).set_db_name(self.get_company(request).flexibee_db_name)
@@ -126,7 +126,7 @@ class ItemIsCore(RestModelISCore):
         )
 
     def get_resource_patterns(self):
-        return DoubleRestPattern(self.rest_resource_class, self.default_rest_resource_pattern_class, self).patterns
+        return DoubleRESTPattern(self.rest_resource_class, self.default_rest_resource_pattern_class, self).patterns
 
 
 class AttachmentsIsCore(ItemIsCore):
