@@ -99,7 +99,7 @@ class FlexibeeItemResource(RESTResource, BaseObjectResource):
 
         rest_links = {}
         kwargs = {'parent_group': get_model_core(obj.instance).menu_group, 'parent_pk': obj.instance.pk}
-        for pattern in self.core.resource_patterns.values():
+        for pattern in self.core.rest_patterns.values():
             if pattern.send_in_rest:
                 url = pattern.get_url_string(self.request, obj=obj, kwargs=kwargs)
                 if url:

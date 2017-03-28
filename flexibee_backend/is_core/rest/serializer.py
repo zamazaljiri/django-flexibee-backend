@@ -1,4 +1,4 @@
-from django.utils.datastructures import SortedDict
+from collections import OrderedDict
 
 from pyston.serializer import Serializer, register, ModelSerializer
 
@@ -21,7 +21,7 @@ class ItemSerializer(ModelSerializer):
 
     def _fields_to_python(self, request, obj, serialization_format, fieldset, requested_fieldset, **kwargs):
         resource_method_fields = self._get_resource_method_fields(self._get_model_resource(request, obj), fieldset)
-        out = SortedDict()
+        out = OrderedDict()
         for field in fieldset.fields:
             subkwargs = self._copy_kwargs(self._get_model_resource(request, obj), kwargs)
             requested_field = None

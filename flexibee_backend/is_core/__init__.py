@@ -1,4 +1,4 @@
-from django.utils.datastructures import SortedDict
+
 from django.db.transaction import get_connection
 from django.core.urlresolvers import reverse
 from django.db.utils import DatabaseError
@@ -31,14 +31,12 @@ from rest.data_processor import *
 
 class FlexibeeIsCore(UIRESTModelISCore):
     abstract = True
-    default_ui_pattern_class = FlexibeePattern
-    default_rest_resource_pattern_class = FlexibeeRESTPattern
-
-    def get_view_classes(self):
-        view_classes = super(FlexibeeIsCore, self).get_view_classes()
-        view_classes['attachment'] = (r'^/(?P<pk>[-\w]+)/attachment/(?P<attachment_pk>[-\d]+)__(?P<attachment_name>.+)$',
-                                      AttachmentFileView, AttachmentsFlexibeeUIPattern)
-        return view_classes
+    default_ui_pattern_class = FlexibeeUIPattern
+    default_rest_pattern_class = FlexibeeRESTPattern
+    view_classes = (
+        ('attachment', r'^(?P<pk>[-\w]+)/attachment/(?P<attachment_pk>[-\d]+)__(?P<attachment_name>.+)$',
+         AttachmentFileView, AttachmentsFlexibeeUIPattern),
+    )
 
     def save_model(self, request, obj, form, change):
         try:
@@ -84,10 +82,6 @@ class FlexibeeIsCore(UIRESTModelISCore):
             return self.ui_patterns.get('add').get_url_string(request,
                                                               kwargs={'company_pk':self.get_company(request).pk})
 
-    def menu_url(self, request):
-        return reverse(('%(site_name)s:' + self.menu_url_name) % {'site_name': self.site_name},
-                       kwargs={'company_pk': self.get_companies(request).first().pk})
-
     def get_menu_groups(self):
         return self.menu_parent_groups + [self.menu_group]
 
@@ -98,7 +92,7 @@ class FlexibeeIsCore(UIRESTModelISCore):
 class ItemIsCore(RESTModelISCore):
     abstract = True
 
-    default_rest_resource_pattern_class = FlexibeeRESTPattern
+    default_rest_pattern_class = FlexibeeRESTPattern
 
     def init_request(self, request):
         get_connection(config.FLEXIBEE_BACKEND_NAME).set_db_name(self.get_company(request).flexibee_db_name)
@@ -125,8 +119,8 @@ class ItemIsCore(RESTModelISCore):
             '/'.join(self.get_menu_groups())
         )
 
-    def get_resource_patterns(self):
-        return DoubleRESTPattern(self.rest_resource_class, self.default_rest_resource_pattern_class, self).patterns
+    def get_rest_patterns(self):
+        return DoubleRESTPattern(self.rest_resource_class, self.default_rest_pattern_class, self).patterns
 
 
 class AttachmentsIsCore(ItemIsCore):
